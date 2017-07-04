@@ -1,4 +1,5 @@
 import java.io.File
+import java.nio.file.{Files, Paths}
 import java.time._
 import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
@@ -15,16 +16,39 @@ object CameraIngesterApp extends App {
 
   println("Camera Ingester")
 
-  val camera = new File("/media/christian/DATA/TestImport/11 November")
+  val dataRoot = Paths.get("/media/christian/DATA/TestDataRoot")
+  val camera = new File("/media/christian/DATA/TestImport")
   val path2017 = new File("/media/christian/DATA/Daten/Bilder/Photos/2017")
   val path2016 = new File("/media/christian/DATA/Daten/Bilder/Photos/2016")
   val jpgPattern = """(?i).*\.jpg$""".r.pattern
 
-  val files = listMatchingFiles(path2017)(jpgPattern) ++ listMatchingFiles(path2016)(jpgPattern)
-
   private val targetPattern = """^(\d{4})-(\d{2})-(\d{2}) \d{3}\..*""".r
 
-  checkWrongDate(files)
+  val files = listMatchingFiles(camera)(jpgPattern).map{new MediaFile(_)}
+  val folders = files.map(_.folder).distinct
+
+  // side effect create folder if it does not exist or add existing files
+
+  // 1. camerafiles
+  // 2. add existing files from touched folders
+  // 3. because the touched folders could contain wrong files, repeat until the list of files is stable
+  // 4. move files to final places (sort by month and renumber)
+  // 5. remove tmp/ folder from touched folders
+
+  folders.foreach { folder =>
+    val target = dataRoot.resolve(folder)
+    print(target)
+    if (Files.exists(target)) {
+      // move existing matching files to target.resolve("tmp")
+      // return list of moved files
+    } else {
+      Files.createDirectories(target)
+      // return empty list
+    }
+  }
+
+  //val files = listMatchingFiles(path2017)(jpgPattern) ++ listMatchingFiles(path2016)(jpgPattern)
+  //checkWrongDate(files)
 
   def checkWrongDate(files: Iterable[File]): Unit = {
     for (f <- files) {
@@ -53,21 +77,6 @@ object CameraIngesterApp extends App {
     // grey underlines are because of implicit conversions of Array objects
     val (folders, files) = folder.listFiles().partition(_.isDirectory)
     folders.flatMap(listMatchingFiles(_)) ++ files.filter(matchesPattern)
-  }
-
-  def algorithm(): Unit = {
-    // for each input file
-    // add to storage location
-    // output is list of storage locations
-
-    // foreach storage location, reorganize media
-    // sort by date to regenerate unique numbers
-    // move all existing files into separate tmp subfolder
-    // move all files to new location
-    // Optimizations
-    // - don't touch unchanged media
-    // - move if same root
-    // - copy and delete if not
   }
 
 }
