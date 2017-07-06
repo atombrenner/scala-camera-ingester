@@ -1,5 +1,4 @@
-import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.time._
 import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
@@ -17,9 +16,9 @@ object CameraIngesterApp extends App {
   println("Camera Ingester")
 
   val dataRoot = Paths.get("/media/christian/DATA/TestDataRoot")
-  val camera = new File("/media/christian/DATA/TestImport")
-  val path2017 = new File("/media/christian/DATA/Daten/Bilder/Photos/2017")
-  val path2016 = new File("/media/christian/DATA/Daten/Bilder/Photos/2016")
+  val camera = Paths.get("/media/christian/DATA/TestImport")
+  val path2017 = Paths.get("/media/christian/DATA/Daten/Bilder/Photos/2017")
+  val path2016 = Paths.get("/media/christian/DATA/Daten/Bilder/Photos/2016")
   val jpgPattern = """(?i).*\.jpg$""".r.pattern
 
   private val targetPattern = """^(\d{4})-(\d{2})-(\d{2}) \d{3}\..*""".r
@@ -37,7 +36,7 @@ object CameraIngesterApp extends App {
 
   folders.foreach { folder =>
     val target = dataRoot.resolve(folder)
-    print(target)
+    println(target)
     if (Files.exists(target)) {
       // move existing matching files to target.resolve("tmp")
       // return list of moved files
@@ -47,36 +46,35 @@ object CameraIngesterApp extends App {
     }
   }
 
-  //val files = listMatchingFiles(path2017)(jpgPattern) ++ listMatchingFiles(path2016)(jpgPattern)
-  //checkWrongDate(files)
+//  val files = listMatchingFiles(path2017)(jpgPattern) ++ listMatchingFiles(path2016)(jpgPattern)
+//  checkWrongDate(files)
+//  def checkWrongDate(files: Iterable[Path]): Unit = {
+//    for (f <- files) {
+//      val date = readExifDate(f)
+//      f.getFileName().toString match {
+//        case targetPattern(year, month, day) =>
+//          if (date.toLocalDate != LocalDate.of(year.toInt, month.toInt, day.toInt)) {
+//            println(s"${f} is  ${date}")
+//          }
+//        case _ => //println(f.getCanonicalPath)
+//      }
+//    }
+//  }
 
-  def checkWrongDate(files: Iterable[File]): Unit = {
-    for (f <- files) {
-      val date = readExifDate(f)
-      f.getName match {
-        case targetPattern(year, month, day) =>
-          if (date.toLocalDate != LocalDate.of(year.toInt, month.toInt, day.toInt)) {
-            println(s"${f.getCanonicalPath} is  ${date}")
-          }
-        case _ => //println(f.getCanonicalPath)
-      }
-    }
-  }
-
-  def readExifDate(f: File): LocalDateTime = {
-    val directory = readMetadata(f).getFirstDirectoryOfType(classOf[ExifSubIFDDirectory])
+  def readExifDate(f: Path): LocalDateTime = {
+    val directory = readMetadata(f.toFile).getFirstDirectoryOfType(classOf[ExifSubIFDDirectory])
     LocalDateTime.ofInstant(directory.getDateOriginal().toInstant, ZoneId.systemDefault())
   }
 
   // This can be done by the new java.nio.file.Files
-  def listMatchingFiles(folder: File)(implicit pattern: Pattern): Array[File] = {
-    assert(folder.isDirectory, folder.getName)
+  def listMatchingFiles(folder: Path)(implicit pattern: Pattern): Seq[Path] = {
+    assert(Files.isDirectory(folder), folder.toString)
 
-    def matchesPattern(file: File) = pattern.matcher(file.getName).matches
+    def matchesPattern(file: Path) = pattern.matcher(file.getFileName.toString).matches
 
     // grey underlines are because of implicit conversions of Array objects
-    val (folders, files) = folder.listFiles().partition(_.isDirectory)
-    folders.flatMap(listMatchingFiles(_)) ++ files.filter(matchesPattern)
+    val (folders, files) = Files.list(folder).iterator.asScala.toSeq.partition(Files.isDirectory(_))
+    folders.flatMap(listMatchingFiles) ++ files.filter(matchesPattern)
   }
 
 }
