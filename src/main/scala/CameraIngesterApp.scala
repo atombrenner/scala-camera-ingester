@@ -21,10 +21,45 @@ object CameraIngesterApp extends App {
   val path2016 = Paths.get("/media/christian/DATA/Daten/Bilder/Photos/2016")
   val jpgPattern = """(?i).*\.jpg$""".r.pattern
 
-  private val targetPattern = """^(\d{4})-(\d{2})-(\d{2}) \d{3}\..*""".r
 
-  val files = listMatchingFiles(camera)(jpgPattern).map{new MediaFile(_)}
-  val folders = files.map(_.folder).distinct
+  // get files from camera
+  val files = listMatchingFiles(camera)(jpgPattern)
+
+  val allFiles = findAllFiles(files, Seq())(jpgPattern)
+
+  println(allFiles.length)
+  println(allFiles.map(_.targetFolder).toList.distinct)
+
+  def findAllFiles(files: Seq[MediaFile], prepared: Seq[String])(implicit pattern: Pattern): Seq[MediaFile] = {
+    val targets = files.map(_.targetFolder).distinct.diff(prepared)
+    val newFiles = targets.flatMap(target => prepareTargetFolder(dataRoot.resolve(target)))
+    if (newFiles.isEmpty) files else files ++ findAllFiles(newFiles, prepared ++ targets)
+  }
+
+  def prepareTargetFolder(folder: Path)(implicit pattern: Pattern) = {
+    val files = listMatchingFiles(folder)
+    if (files.nonEmpty) {
+      val tmp = Paths.get("tmp")
+      //Files.createDirectory(folder.resolve(tmp))
+
+      files.foreach { file =>
+        val tmpPath = file.path.resolveSibling(tmp.resolve(file.path.getFileName))
+        file.move(tmpPath)
+      }
+    }
+    files
+  }
+
+  def listMatchingFiles(folder: Path)(implicit pattern: Pattern): Seq[MediaFile] = {
+    assert(Files.isDirectory(folder), folder.toString)
+
+    def matchesPattern(file: Path) = pattern.matcher(file.getFileName.toString).matches
+
+    // grey underlines are because of implicit conversions of Array objects
+    val (folders, files) = Files.list(folder).iterator.asScala.toSeq.partition(Files.isDirectory(_))
+    folders.flatMap(listMatchingFiles) ++ files.filter(matchesPattern).map(new MediaFile(_))
+  }
+
 
   // side effect create folder if it does not exist or add existing files
 
@@ -34,17 +69,17 @@ object CameraIngesterApp extends App {
   // 4. move files to final places (sort by month and renumber)
   // 5. remove tmp/ folder from touched folders
 
-  folders.foreach { folder =>
-    val target = dataRoot.resolve(folder)
-    println(target)
-    if (Files.exists(target)) {
-      // move existing matching files to target.resolve("tmp")
-      // return list of moved files
-    } else {
-      Files.createDirectories(target)
-      // return empty list
-    }
-  }
+//  folders.foreach { folder =>
+//    val target = dataRoot.resolve(folder)
+//    println(target)
+//    if (Files.exists(target)) {
+//      // move existing matching files to target.resolve("tmp")
+//      // return list of moved files
+//    } else {
+//      Files.createDirectories(target)
+//      // return empty list
+//    }
+//  }
 
 //  val files = listMatchingFiles(path2017)(jpgPattern) ++ listMatchingFiles(path2016)(jpgPattern)
 //  checkWrongDate(files)
@@ -61,20 +96,10 @@ object CameraIngesterApp extends App {
 //    }
 //  }
 
-  def readExifDate(f: Path): LocalDateTime = {
-    val directory = readMetadata(f.toFile).getFirstDirectoryOfType(classOf[ExifSubIFDDirectory])
-    LocalDateTime.ofInstant(directory.getDateOriginal().toInstant, ZoneId.systemDefault())
-  }
+//  def readExifDate(f: Path): LocalDateTime = {
+//    val directory = readMetadata(f.toFile).getFirstDirectoryOfType(classOf[ExifSubIFDDirectory])
+//    LocalDateTime.ofInstant(directory.getDateOriginal().toInstant, ZoneId.systemDefault())
+//  }
 
-  // This can be done by the new java.nio.file.Files
-  def listMatchingFiles(folder: Path)(implicit pattern: Pattern): Seq[Path] = {
-    assert(Files.isDirectory(folder), folder.toString)
-
-    def matchesPattern(file: Path) = pattern.matcher(file.getFileName.toString).matches
-
-    // grey underlines are because of implicit conversions of Array objects
-    val (folders, files) = Files.list(folder).iterator.asScala.toSeq.partition(Files.isDirectory(_))
-    folders.flatMap(listMatchingFiles) ++ files.filter(matchesPattern)
-  }
 
 }

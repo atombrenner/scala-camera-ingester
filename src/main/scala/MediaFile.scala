@@ -1,4 +1,4 @@
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.time.{LocalDateTime, ZoneId}
 
 import com.drew.imaging.ImageMetadataReader.readMetadata
@@ -17,7 +17,12 @@ class MediaFile(val path: Path) {
     LocalDateTime.ofInstant(directory.getDateOriginal().toInstant, ZoneId.systemDefault())
   }
 
-  val folder: String = s"${dateTime.getYear}/${MediaFile.monthName(dateTime.getMonthValue - 1)}"
+  val targetFolder: String = s"${dateTime.getYear}/${MediaFile.monthName(dateTime.getMonthValue - 1)}"
+
+  def move(to: Path): Unit = {
+    // state, but is really changes the state on the machine
+    // use copy & delete if root is not the same
+  }
 
 }
 
