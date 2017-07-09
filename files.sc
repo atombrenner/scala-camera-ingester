@@ -1,5 +1,6 @@
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.{FileStore, FileSystems, Files, Paths}
+
 import scala.collection.JavaConverters._
 
 val folder = Paths.get("/media/christian/DATA/Daten/Bilder/Photos/2017/04 April/")
@@ -11,4 +12,12 @@ Files.list(folder).iterator().asScala.toSeq.head.getParent
 val parkingFolder = Paths.get("/home/christian/test")
 Files.createDirectories(Paths.get("/home/christian/test"))
 
-//parkingFolder.resolve("1").resolveSibling()
+folder.getRoot == parkingFolder.getRoot
+
+val stores = FileSystems.getDefault().getFileStores().asScala
+
+for (store: FileStore <- stores.take(2)) {
+  println(store.toString)
+  println(store.name())
+  println(store.`type`())
+}

@@ -13,6 +13,10 @@ import scala.util.matching.Regex
 
 object CameraIngesterApp extends App {
 
+  val linuxPanasonic = "/media/christian/9016-4EF8/DCIM"
+
+  // TODO: find DCIM folders
+
   println("Camera Ingester")
 
   val dataRoot = Paths.get("/media/christian/DATA/TestDataRoot")
@@ -23,5 +27,8 @@ object CameraIngesterApp extends App {
 
   val library = new MediaLibrary(dataRoot)
   library.ingest(camera)
+
+  // TODO: detect Memory Cards for automatic import
+
 
 }
