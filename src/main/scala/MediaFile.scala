@@ -19,10 +19,10 @@ class MediaFile (private var path: Path) {
   val targetFolder: Path = Paths.get(dateTime.getYear.toString, MediaFile.monthName(dateTime.getMonthValue - 1))
   val targetName: String = instant.toString.substring(0, 10)
 
-  def targetName(slot: Int, extension: String): String = f"$targetName $slot%03d.$extension"
+  def targetName(number: Int, extension: String): String = f"$targetName $number%03d.$extension"
 
   def moveTo(folder: Path, index: Int, extension: String): Unit = {
-    val to = folder.resolve(targetName(index, extension))
+    val to = folder.resolve(targetName(index + 1, extension))
     println(s"$path ===> $to")
 
     Files.move(path, to)

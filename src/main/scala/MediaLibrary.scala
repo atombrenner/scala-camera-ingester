@@ -15,7 +15,9 @@ class MediaLibrary(rootFolder: Path) {
 
   def ingest(sourceFolder: Path): Unit = {
     Files.createDirectories(parkingFolder)
-    val files = affectedFiles(listMatchingFiles(sourceFolder) ::: listMatchingFiles(parkingFolder))
+    assert(Files.list(parkingFolder).count() == 0, s"$parkingFolder not empty")
+
+    val files = affectedFiles(listMatchingFiles(sourceFolder))
 
     // move to parking folder
     for((file, index) <- files.zipWithIndex) yield {
@@ -33,8 +35,6 @@ class MediaLibrary(rootFolder: Path) {
 
     assert(Files.list(parkingFolder).count() == 0)
     Files.deleteIfExists(parkingFolder)
-
-    // TODO: cleanup source folder
   }
 
   // get recursively all files that potentially need to be moved
@@ -45,7 +45,7 @@ class MediaLibrary(rootFolder: Path) {
   }
 
   def listMatchingFiles(folder: Path): List[MediaFile] = {
-    assert(Files.isDirectory(folder), folder.toString)
+    if (Files.notExists(folder)) return List()
 
     def matchesPattern(file: Path) = pattern.matcher(file.getFileName.toString).matches
 
