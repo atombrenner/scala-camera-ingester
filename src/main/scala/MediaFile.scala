@@ -1,3 +1,4 @@
+import java.io.FileInputStream
 import java.lang.Throwable
 import java.nio.file.{Files, Path, Paths}
 import java.time.{Instant, LocalDateTime, ZoneId}
@@ -6,6 +7,7 @@ import com.drew.imaging.ImageMetadataReader.readMetadata
 import com.drew.metadata.Metadata
 import com.drew.metadata.exif.ExifSubIFDDirectory
 import com.drew.metadata.file.FileMetadataDirectory
+import org.mp4parser.IsoFile
 
 import scala.util.Try
 
@@ -13,8 +15,14 @@ private object MediaFile {
 
   private val monthName = Array("01 Januar", "02 Februar", "03 März", "04 April", "05 Mai", "06 Juni", "07 Juli", "08 August", "09 September", "10 Oktober", "11 November", "12 Dezember")
 
+  val jpg = """(?i).*\.(jpg|jpeg)$""".r
+  val mp4 = """(?i).*\.(mp4)$""".r
+
   def apply(path: Path): MediaFile = {
-    new JpgFile(path)
+    path.getFileName.toString match {
+      case jpg(_*) => new JpgFile(path)
+      case mp4(_*) => new Mp4File(path)
+    }
   }
 }
 
@@ -32,7 +40,6 @@ abstract class MediaFile (private var path: Path, val extension: String) {
   def moveTo(folder: Path, index: Int): Unit = {
     val to = folder.resolve(targetName(index + 1))
     println(s"$path ===> $to")
-
     if (path.getRoot != to.getRoot) {
       Files.copy(path, to)
       Files.delete(path)
@@ -55,7 +62,13 @@ class JpgFile(path: Path) extends MediaFile(path, "jpg") {
 
 class Mp4File(path: Path) extends MediaFile(path, "mp4") {
   override def readCreationDate(path: Path): Instant = {
-    throw new NotImplementedError()
+    val isoFile = new IsoFile(new FileInputStream(path.toString).getChannel)
+    val creation = isoFile.getMovieBox.getMovieHeaderBox.getCreationTime.toInstant
+    if (LocalDateTime.ofInstant(creation, ZoneId.systemDefault()).getYear > 2000) {
+      creation
+    } else {
+      Files.getLastModifiedTime(path).toInstant
+    }
   }
 }
 

@@ -8,7 +8,12 @@ result.isEmpty
 
 pattern.pattern.matcher(name).matches()
 
-name match { case pattern(_*) => true ; case _ => false}
+name match {
+  case pattern(_*) => true
+  case _ => false
+}
 pattern.regex
 name.matches(pattern.regex)
 
+val s = """(?i).*\.(jpg|jpeg)$"""
+s.r.pattern

@@ -7,10 +7,10 @@ import scala.collection.JavaConverters._
 // - <year>
 //   - <month>
 //     - file
-class MediaLibrary(rootFolder: Path) {
+class MediaLibrary(rootFolder: Path, filePattern: String) {
 
   private val parkingFolder = rootFolder.resolve("tmp")
-  private val pattern = """(?i).*\.(jpg|jpeg)$""".r.pattern
+  private val pattern = filePattern.r.pattern
 
   def ingest(sourceFolder: Path): Unit = {
     Files.createDirectories(parkingFolder)

@@ -11,7 +11,8 @@ object CameraIngesterApp extends App {
 
   println("Camera Ingester")
 
-  val library = new MediaLibrary(Paths.get("/data/Daten/Bilder/Photos/"))
+  val photoLibrary = new MediaLibrary(Paths.get("/data/Daten/Bilder/Photos/"), """(?i).*\.(jpg|jpeg)$""")
+  val videoLibrary = new MediaLibrary(Paths.get("/data/Daten/Video/Eigene/"), """(?i).*\.(mp4)$""")
 
   // Parameters
   // MediaFolder
@@ -28,7 +29,8 @@ object CameraIngesterApp extends App {
   val sources = Seq(Paths.get("/data/Google Drive/Google Fotos/"))
 
   sources.foreach{ source =>
-    library.ingest(source)
+    photoLibrary.ingest(source)
+    videoLibrary.ingest(source)
     if (Files.list(source).count == 0) {
       Files.delete(source)
     } else {
