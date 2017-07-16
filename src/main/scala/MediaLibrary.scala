@@ -10,8 +10,7 @@ import scala.collection.JavaConverters._
 class MediaLibrary(rootFolder: Path) {
 
   private val parkingFolder = rootFolder.resolve("tmp")
-  private val extension = "jpg"
-  private val pattern = """(?i).*\.jpg$""".r.pattern
+  private val pattern = """(?i).*\.(jpg|jpeg)$""".r.pattern
 
   def ingest(sourceFolder: Path): Unit = {
     Files.createDirectories(parkingFolder)
@@ -21,7 +20,7 @@ class MediaLibrary(rootFolder: Path) {
 
     // move to parking folder
     for((file, index) <- files.zipWithIndex) yield {
-      file.moveTo(parkingFolder, index, extension)
+      file.moveTo(parkingFolder, index)
     }
 
     // sort into file structure
@@ -29,7 +28,7 @@ class MediaLibrary(rootFolder: Path) {
       val targetFolder = rootFolder.resolve(folder)
       Files.createDirectories(targetFolder)
       for ((file, index) <- files.sortBy(_.instant).zipWithIndex) {
-        file.moveTo(targetFolder, index, extension)
+        file.moveTo(targetFolder, index)
       }
     }
 

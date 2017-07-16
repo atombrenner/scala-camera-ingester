@@ -1,23 +1,20 @@
 import java.io.File
 import java.nio.file.{FileStore, FileSystems, Files, Paths}
 
+import com.drew.imaging.ImageMetadataReader.readMetadata
+import com.drew.metadata.Directory
+import com.drew.metadata.exif.ExifSubIFDDirectory
+import com.drew.metadata.file.FileMetadataDirectory
+
 import scala.collection.JavaConverters._
 
-val folder = Paths.get("/media/christian/DATA/Daten/Bilder/Photos/2017/04 April/")
+val image = Paths.get("/data/Google Drive/Google Fotos/IMG-20160430-WA0000.jpg")
+val metadata = readMetadata(image.toFile)
 
-val regex = """^\d{4}-\d{2}-\d{2} (\d{3})\..*""".r
+metadata.getFirstDirectoryOfType(classOf[FileMetadataDirectory]).getDate(FileMetadataDirectory.TAG_FILE_MODIFIED_DATE).toInstant
 
-Files.list(folder).iterator().asScala.toSeq.head.getParent
 
-val parkingFolder = Paths.get("/home/christian/test")
-Files.createDirectories(Paths.get("/home/christian/test"))
-
-folder.getRoot == parkingFolder.getRoot
-
-val stores = FileSystems.getDefault().getFileStores().asScala
-
-for (store: FileStore <- stores.take(2)) {
-  println(store.toString)
-  println(store.name())
-  println(store.`type`())
+for (dir: Directory <- readMetadata(image.toFile).getDirectories.iterator.asScala) {
+  println(dir)
+  println(dir.getTags)
 }
