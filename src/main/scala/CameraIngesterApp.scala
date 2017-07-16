@@ -24,9 +24,9 @@ object CameraIngesterApp extends App {
   } else {
     roots
   }
-  // val sources = potentialSources.map(_.resolve("DCIM")).filter(Files.isDirectory(_)).toSeq
+  var sources = potentialSources.map(_.resolve("DCIM")).filter(Files.isDirectory(_)).toSeq
 
-  val sources = Seq(Paths.get("/data/Google Drive/Google Fotos/"))
+  sources = Seq(Paths.get("/data/Google Drive/Google Fotos/")) ++ sources
 
   sources.foreach{ source =>
     photoLibrary.ingest(source)
