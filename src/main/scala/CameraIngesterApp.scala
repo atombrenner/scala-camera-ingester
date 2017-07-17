@@ -1,18 +1,12 @@
-import java.io.IOException
-import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file._
-import java.util.stream
-
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-
 
 object CameraIngesterApp extends App {
 
   println("Camera Ingester")
 
-  val photoLibrary = new MediaLibrary(Paths.get("/data/Daten/Bilder/Photos/"), """(?i).*\.(jpg|jpeg)$""")
-  val videoLibrary = new MediaLibrary(Paths.get("/data/Daten/Video/Eigene/"), """(?i).*\.(mp4)$""")
+  val photoLibrary = new MediaLibrary(Paths.get("/data/Daten/Bilder/Photos/"), MediaFile.jpg)
+  val videoLibrary = new MediaLibrary(Paths.get("/data/Daten/Video/Eigene/"), MediaFile.mp4)
 
   // Parameters
   // MediaFolder
@@ -25,20 +19,19 @@ object CameraIngesterApp extends App {
     roots
   }
   var sources = potentialSources.map(_.resolve("DCIM")).filter(Files.isDirectory(_)).toSeq
-
   sources = Seq(Paths.get("/data/Google Drive/Google Fotos/")) ++ sources
 
   sources.foreach{ source =>
     photoLibrary.ingest(source)
     videoLibrary.ingest(source)
+
+    // TODO: correctly delete empty folders inside of DCIM folders
+
     if (Files.list(source).count == 0) {
       Files.delete(source)
     } else {
       println(s"Warning: $source not empty")
     }
   }
-
-  // delete empty source folders
-  // sources.filter(Files.list(_).count == 0).foreach(Files.delete)
 
 }

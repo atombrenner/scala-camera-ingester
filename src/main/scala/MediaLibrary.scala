@@ -1,5 +1,7 @@
 import java.nio.file.{Files, Path}
+
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 // A MediaLibrary is a folder that contains MediaFiles
 // that are organized in the following folder structure:
@@ -7,10 +9,10 @@ import scala.collection.JavaConverters._
 // - <year>
 //   - <month>
 //     - file
-class MediaLibrary(rootFolder: Path, filePattern: String) {
+class MediaLibrary(rootFolder: Path, filePattern: Regex) {
 
   private val parkingFolder = rootFolder.resolve("tmp")
-  private val pattern = filePattern.r.pattern
+  private val pattern = filePattern.pattern
 
   def ingest(sourceFolder: Path): Unit = {
     Files.createDirectories(parkingFolder)
