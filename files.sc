@@ -1,4 +1,4 @@
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 import com.drew.imaging.ImageMetadataReader.readMetadata
 import com.drew.metadata.Directory
@@ -11,13 +11,9 @@ import org.mp4parser.boxes.apple.AppleNameBox
 import org.mp4parser.tools.Path
 import java.io.{File, FileInputStream, FileNotFoundException}
 
-val path = Paths.get("/data/Google Drive/Google Fotos/VID-20160408-WA0000.mp4")
+val path = Paths.get("/home/christian/DCIM/113___07/IMG_1259.JPG")
 
-val videoFile = path.toFile
-val isoFile = new IsoFile(new FileInputStream(path.toString).getChannel)
+Files.list(path.getParent).iterator.asScala.partition(_.toString.lastIndexOf(".") > 0).forEach(println(_))
 
-isoFile.getMovieBox.getTrackCount
-isoFile.getMovieBox.
-isoFile.getMovieBox.getMovieHeaderBox.getCreationTime.toInstant
-
-isoFile.close()
+val name = path.getFileName.toString
+name.substring(0, name.lastIndexOf('.'))

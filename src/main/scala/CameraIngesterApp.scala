@@ -22,10 +22,10 @@ object CameraIngesterApp extends App {
   sources = Seq(Paths.get("/data/Google Drive/Google Fotos/")) ++ sources
 
   sources.foreach{ source =>
+    videoLibrary.ingest(source)  // order is important, otherwise the thumbnails of videos would be imported as photos
     photoLibrary.ingest(source)
-    videoLibrary.ingest(source)
 
-    // TODO: correctly delete empty folders inside of DCIM folders
+    // TODO: delete empty folders inside of DCIM folders
 
     if (Files.list(source).count == 0) {
       Files.delete(source)

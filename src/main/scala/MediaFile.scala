@@ -40,15 +40,24 @@ abstract class MediaFile (private var path: Path, val extension: String) {
   def moveTo(folder: Path, index: Int): Unit = {
     val to = folder.resolve(targetName(index + 1))
     println(s"$path ===> $to")
+
     if (path.getRoot != to.getRoot) {
       Files.copy(path, to)
       Files.delete(path)
     } else {
       Files.move(path, to)
     }
+
+    val name = fileNameWithoutExtension(path)
+    Files.list(path.getParent).filter(name == fileNameWithoutExtension(_)).forEach(Files.delete(_))
+
     path = to
   }
 
+  private def fileNameWithoutExtension(path: Path): String = {
+    val name = path.getFileName.toString
+    name.substring(0, name.lastIndexOf('.'))
+  }
 }
 
 class JpgFile(path: Path) extends MediaFile(path, "jpg") {
