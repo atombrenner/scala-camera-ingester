@@ -18,6 +18,9 @@ private object MediaFile {
   val jpg = """(?i).*\.(jpg|jpeg)$""".r
   val mp4 = """(?i).*\.(mp4|mov)$""".r
 
+  // Use this to trancode mov to mp4 with metadata for non working mov files
+  // ffmpeg  -i input.mov -codec:0 h264 -codec:1 mp3 -map_metadata 0 output.mp4
+
   def apply(path: Path): MediaFile = {
     path.getFileName.toString match {
       case jpg(_*) => new JpgFile(path)
@@ -56,7 +59,8 @@ abstract class MediaFile (private var path: Path, val extension: String) {
 
   private def fileNameWithoutExtension(path: Path): String = {
     val name = path.getFileName.toString
-    name.substring(0, name.lastIndexOf('.'))
+    val dot = name.lastIndexOf('.')
+    if (dot < 0) name else name.substring(0, dot)
   }
 }
 
@@ -71,6 +75,7 @@ class JpgFile(path: Path) extends MediaFile(path, "jpg") {
 
 class Mp4File(path: Path) extends MediaFile(path, "mp4") {
   override def readCreationDate(path: Path): Instant = {
+    println(path.toString)
     val isoFile = new IsoFile(new FileInputStream(path.toString).getChannel)
     val creation = isoFile.getMovieBox.getMovieHeaderBox.getCreationTime.toInstant
     if (LocalDateTime.ofInstant(creation, ZoneId.systemDefault()).getYear > 2000) {

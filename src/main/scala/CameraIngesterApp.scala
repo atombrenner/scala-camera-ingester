@@ -22,6 +22,8 @@ object CameraIngesterApp extends App {
   sources = Seq(Paths.get("/data/Google Drive/Google Fotos/")) ++ sources
 
   sources.foreach{ source =>
+    println(s"Importing from $source")
+    
     videoLibrary.ingest(source)  // order is important, otherwise the thumbnails of videos would be imported as photos
     photoLibrary.ingest(source)
 
