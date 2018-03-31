@@ -2,7 +2,7 @@ name := "CameraIngester"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.4"
 
 libraryDependencies += "com.drewnoakes" % "metadata-extractor" % "2.10.1"
 libraryDependencies += "org.mp4parser" % "isoparser" % "1.9.31"
