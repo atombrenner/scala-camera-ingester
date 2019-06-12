@@ -19,7 +19,7 @@ object CameraIngesterApp extends App {
     roots
   }
   var sources = potentialSources.map(_.resolve("DCIM")).filter(Files.isDirectory(_)).toSeq
-  sources = Seq(Paths.get("/data/Google Drive/Google Fotos/")) ++ sources
+  //sources = Seq(Paths.get("/data/Google Drive/Google Fotos/")) ++ sources
 
   sources.foreach{ source =>
     println(s"Importing from $source")
