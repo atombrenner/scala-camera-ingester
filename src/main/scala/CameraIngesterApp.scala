@@ -5,8 +5,8 @@ object CameraIngesterApp extends App {
 
   println("Camera Ingester")
 
-  val photoLibrary = new MediaLibrary(Paths.get("/data/Daten/Bilder/Photos/"), MediaFile.jpg)
-  val videoLibrary = new MediaLibrary(Paths.get("/data/Daten/Video/Eigene/"), MediaFile.mp4)
+  val photoLibrary = new MediaLibrary(Paths.get("/run/media/data/Daten/Bilder/Photos/"), MediaFile.jpg)
+  val videoLibrary = new MediaLibrary(Paths.get("/run/media/data/Daten/Video/Eigene/"), MediaFile.mp4)
 
   // Parameters
   // MediaFolder
@@ -14,7 +14,7 @@ object CameraIngesterApp extends App {
 
   val roots = FileSystems.getDefault.getRootDirectories.asScala
   val potentialSources = if (roots.head.toString == "/") { // Linux
-    Files.list(roots.head.resolve("media").resolve(System.getProperty("user.name"))).iterator.asScala
+    Files.list(roots.head.resolve("run/media").resolve(System.getProperty("user.name"))).iterator.asScala
   } else {
     roots
   }
