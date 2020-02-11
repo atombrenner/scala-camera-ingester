@@ -5,6 +5,9 @@ object CameraIngesterApp extends App {
 
   println("Camera Ingester")
 
+  // sudo mkdir /run/media/data
+  // sudo mount /dev/sdb2 /run/media/data
+
   val photoLibrary = new MediaLibrary(Paths.get("/run/media/data/Daten/Bilder/Photos/"), MediaFile.jpg)
   val videoLibrary = new MediaLibrary(Paths.get("/run/media/data/Daten/Video/Eigene/"), MediaFile.mp4)
 
