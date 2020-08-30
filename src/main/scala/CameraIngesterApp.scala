@@ -15,14 +15,14 @@ object CameraIngesterApp extends App {
   // MediaFolder
   // Optional Source
 
-//  val roots = FileSystems.getDefault.getRootDirectories.asScala
-//  val potentialSources = if (roots.head.toString == "/") { // Linux
-//    Files.list(roots.head.resolve("run/media").resolve(System.getProperty("user.name"))).iterator.asScala
-//  } else {
-//    roots
-//  }
-//  var sources = potentialSources.map(_.resolve("DCIM")).filter(Files.isDirectory(_)).toSeq
-  var sources = Seq(Paths.get("/home/christian/Dropbox/DCIM")) // ++ sources
+  val roots = FileSystems.getDefault.getRootDirectories.asScala
+  val potentialSources = if (roots.head.toString == "/") { // Linux
+    Files.list(roots.head.resolve("run/media").resolve(System.getProperty("user.name"))).iterator.asScala
+  } else {
+    roots
+  }
+  val sources = potentialSources.map(_.resolve("DCIM")).filter(Files.isDirectory(_)).toSeq
+  //var sources = Seq(Paths.get("/home/christian/Dropbox/DCIM")) // ++ sources
 
   sources.foreach{ source =>
     println(s"Importing from $source")
@@ -33,7 +33,7 @@ object CameraIngesterApp extends App {
     // TODO: delete empty folders inside of DCIM folders
 
     if (Files.list(source).count == 0) {
-      // Files.delete(source)
+       Files.delete(source)
     } else {
       println(s"Warning: $source not empty")
     }
